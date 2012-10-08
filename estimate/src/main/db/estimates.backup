@@ -1,0 +1,446 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 9.1.6
+-- Dumped by pg_dump version 9.1.6
+-- Started on 2012-10-08 22:55:52 MSK
+
+SET statement_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+--
+-- TOC entry 172 (class 3079 OID 11684)
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- TOC entry 1961 (class 0 OID 0)
+-- Dependencies: 172
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+SET search_path = public, pg_catalog;
+
+--
+-- TOC entry 161 (class 1259 OID 16483)
+-- Dependencies: 6
+-- Name: dictionary_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE dictionary_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.dictionary_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 1962 (class 0 OID 0)
+-- Dependencies: 161
+-- Name: dictionary_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('dictionary_id_seq', 2, true);
+
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- TOC entry 162 (class 1259 OID 16485)
+-- Dependencies: 1923 6
+-- Name: dictionary; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE dictionary (
+    id bigint DEFAULT nextval('dictionary_id_seq'::regclass) NOT NULL,
+    code character varying(50) NOT NULL
+);
+
+
+ALTER TABLE public.dictionary OWNER TO postgres;
+
+--
+-- TOC entry 163 (class 1259 OID 16489)
+-- Dependencies: 6
+-- Name: dictionary_value_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE dictionary_value_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.dictionary_value_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 1963 (class 0 OID 0)
+-- Dependencies: 163
+-- Name: dictionary_value_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('dictionary_value_id_seq', 40, true);
+
+
+--
+-- TOC entry 164 (class 1259 OID 16491)
+-- Dependencies: 1924 6
+-- Name: dictionary_value; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE dictionary_value (
+    dictionary_id bigint NOT NULL,
+    code character varying(50) NOT NULL,
+    name character varying,
+    measure_unit character varying(100) NOT NULL,
+    id bigint DEFAULT nextval('dictionary_value_id_seq'::regclass) NOT NULL
+);
+
+
+ALTER TABLE public.dictionary_value OWNER TO postgres;
+
+--
+-- TOC entry 165 (class 1259 OID 16498)
+-- Dependencies: 6
+-- Name: dictionary_value_resource; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE dictionary_value_resource (
+    dictionary_value_id bigint NOT NULL,
+    resource_id bigint NOT NULL,
+    measure double precision
+);
+
+
+ALTER TABLE public.dictionary_value_resource OWNER TO postgres;
+
+--
+-- TOC entry 166 (class 1259 OID 16501)
+-- Dependencies: 6
+-- Name: estimates_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE estimates_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.estimates_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 1964 (class 0 OID 0)
+-- Dependencies: 166
+-- Name: estimates_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('estimates_id_seq', 16, true);
+
+
+--
+-- TOC entry 167 (class 1259 OID 16503)
+-- Dependencies: 1925 6
+-- Name: estimates; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE estimates (
+    id bigint DEFAULT nextval('estimates_id_seq'::regclass) NOT NULL,
+    name character varying
+);
+
+
+ALTER TABLE public.estimates OWNER TO postgres;
+
+--
+-- TOC entry 168 (class 1259 OID 16510)
+-- Dependencies: 6
+-- Name: estimates_value_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE estimates_value_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.estimates_value_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 1965 (class 0 OID 0)
+-- Dependencies: 168
+-- Name: estimates_value_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('estimates_value_id_seq', 44, true);
+
+
+--
+-- TOC entry 169 (class 1259 OID 16512)
+-- Dependencies: 1926 1927 6
+-- Name: estimates_value; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE estimates_value (
+    id bigint DEFAULT nextval('estimates_value_id_seq'::regclass) NOT NULL,
+    measure double precision,
+    estimates_id bigint NOT NULL,
+    dictionary_value_id bigint NOT NULL,
+    number integer DEFAULT 1 NOT NULL
+);
+
+
+ALTER TABLE public.estimates_value OWNER TO postgres;
+
+--
+-- TOC entry 170 (class 1259 OID 16517)
+-- Dependencies: 6
+-- Name: resource_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE resource_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.resource_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 1966 (class 0 OID 0)
+-- Dependencies: 170
+-- Name: resource_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('resource_id_seq', 34, true);
+
+
+--
+-- TOC entry 171 (class 1259 OID 16519)
+-- Dependencies: 1928 6
+-- Name: resource; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE resource (
+    code character varying(50) NOT NULL,
+    name character varying,
+    measure_unit character varying(100) NOT NULL,
+    id bigint DEFAULT nextval('resource_id_seq'::regclass) NOT NULL,
+    type character(1) NOT NULL
+);
+
+
+ALTER TABLE public.resource OWNER TO postgres;
+
+--
+-- TOC entry 1948 (class 0 OID 16485)
+-- Dependencies: 162 1954
+-- Data for Name: dictionary; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY dictionary (id, code) FROM stdin;
+1	ТЕР
+2	ФЕР
+\.
+
+
+--
+-- TOC entry 1949 (class 0 OID 16491)
+-- Dependencies: 164 1954
+-- Data for Name: dictionary_value; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY dictionary_value (dictionary_id, code, name, measure_unit, id) FROM stdin;
+\.
+
+
+--
+-- TOC entry 1950 (class 0 OID 16498)
+-- Dependencies: 165 1954
+-- Data for Name: dictionary_value_resource; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY dictionary_value_resource (dictionary_value_id, resource_id, measure) FROM stdin;
+\.
+
+
+--
+-- TOC entry 1951 (class 0 OID 16503)
+-- Dependencies: 167 1954
+-- Data for Name: estimates; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY estimates (id, name) FROM stdin;
+\.
+
+
+--
+-- TOC entry 1952 (class 0 OID 16512)
+-- Dependencies: 169 1954
+-- Data for Name: estimates_value; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY estimates_value (id, measure, estimates_id, dictionary_value_id, number) FROM stdin;
+\.
+
+
+--
+-- TOC entry 1953 (class 0 OID 16519)
+-- Dependencies: 171 1954
+-- Data for Name: resource; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY resource (code, name, measure_unit, id, type) FROM stdin;
+\.
+
+
+--
+-- TOC entry 1942 (class 2606 OID 16527)
+-- Dependencies: 171 171 1955
+-- Name: code_uniqe; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY resource
+    ADD CONSTRAINT code_uniqe UNIQUE (code);
+
+
+--
+-- TOC entry 1930 (class 2606 OID 16529)
+-- Dependencies: 162 162 1955
+-- Name: dictionary_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY dictionary
+    ADD CONSTRAINT dictionary_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 1934 (class 2606 OID 16531)
+-- Dependencies: 165 165 165 1955
+-- Name: dictionary_value_material_pk; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY dictionary_value_resource
+    ADD CONSTRAINT dictionary_value_material_pk PRIMARY KEY (dictionary_value_id, resource_id);
+
+
+--
+-- TOC entry 1932 (class 2606 OID 16533)
+-- Dependencies: 164 164 1955
+-- Name: dictionary_value_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY dictionary_value
+    ADD CONSTRAINT dictionary_value_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 1938 (class 2606 OID 16535)
+-- Dependencies: 169 169 1955
+-- Name: estimates_id_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY estimates_value
+    ADD CONSTRAINT estimates_id_key UNIQUE (id);
+
+
+--
+-- TOC entry 1940 (class 2606 OID 16537)
+-- Dependencies: 169 169 1955
+-- Name: estimates_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY estimates_value
+    ADD CONSTRAINT estimates_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 1936 (class 2606 OID 16539)
+-- Dependencies: 167 167 1955
+-- Name: estimates_pkey1; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY estimates
+    ADD CONSTRAINT estimates_pkey1 PRIMARY KEY (id);
+
+
+--
+-- TOC entry 1944 (class 2606 OID 16541)
+-- Dependencies: 171 171 1955
+-- Name: material_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY resource
+    ADD CONSTRAINT material_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 1945 (class 2606 OID 16542)
+-- Dependencies: 164 162 1929 1955
+-- Name: dictionary_value_dictionary_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY dictionary_value
+    ADD CONSTRAINT dictionary_value_dictionary_id_fkey FOREIGN KEY (dictionary_id) REFERENCES dictionary(id);
+
+
+--
+-- TOC entry 1946 (class 2606 OID 16547)
+-- Dependencies: 164 1931 165 1955
+-- Name: dictionary_value_material_dictionary_value_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY dictionary_value_resource
+    ADD CONSTRAINT dictionary_value_material_dictionary_value_id_fkey FOREIGN KEY (dictionary_value_id) REFERENCES dictionary_value(id);
+
+
+--
+-- TOC entry 1947 (class 2606 OID 16552)
+-- Dependencies: 165 171 1943 1955
+-- Name: dictionary_value_material_material_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY dictionary_value_resource
+    ADD CONSTRAINT dictionary_value_material_material_id_fkey FOREIGN KEY (resource_id) REFERENCES resource(id);
+
+
+--
+-- TOC entry 1960 (class 0 OID 0)
+-- Dependencies: 6
+-- Name: public; Type: ACL; Schema: -; Owner: postgres
+--
+
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM postgres;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
+-- Completed on 2012-10-08 22:55:52 MSK
+
+--
+-- PostgreSQL database dump complete
+--
+
