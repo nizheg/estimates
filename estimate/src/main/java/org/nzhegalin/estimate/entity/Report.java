@@ -5,9 +5,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import java.io.Serializable;
+
 import org.nzhegalin.estimate.entity.Estimates.EstimatesItem;
 
-public class Report {
+public class Report implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private final List<Resource> resources = new LinkedList<Resource>();;
 	private final List<ReportRow> rows = new LinkedList<ReportRow>();
