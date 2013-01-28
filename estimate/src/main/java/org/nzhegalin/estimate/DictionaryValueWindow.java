@@ -5,13 +5,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.nzhegalin.estimate.dao.DAOFactory;
 import org.nzhegalin.estimate.entity.Dictionary;
 import org.nzhegalin.estimate.entity.DictionaryValue;
 import org.nzhegalin.estimate.entity.DictionaryValueResource;
 import org.nzhegalin.estimate.entity.Resource;
-import org.nzhegalin.estimate.manager.DictionaryProvider;
-import org.nzhegalin.estimate.manager.DictionaryValueProvider;
-import org.nzhegalin.estimate.manager.ResourceProvider;
 
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
@@ -38,6 +36,8 @@ public class DictionaryValueWindow extends Window {
 
 	private static final long serialVersionUID = 1L;
 
+	protected DAOFactory daoFactory;
+
 	private final DictionaryValue dictionaryValue;
 	protected boolean isCommit = false;
 
@@ -59,14 +59,12 @@ public class DictionaryValueWindow extends Window {
 				private static final long serialVersionUID = 1L;
 
 				@Override
-				public Field createField(Container container, Object itemId,
-						Object propertyId, Component uiContext) {
+				public Field createField(Container container, Object itemId, Object propertyId, Component uiContext) {
 					Field field = new TextField();
 					if (RESOURCE.equals(propertyId)) {
 						field.setReadOnly(true);
 					} else if (MEASURE.equals(propertyId)) {
-						field.addValidator(new DoubleValidator(
-								"Измерение должно быть числом"));
+						field.addValidator(new DoubleValidator("Измерение должно быть числом"));
 						field.setRequired(true);
 					}
 					return field;
@@ -82,8 +80,7 @@ public class DictionaryValueWindow extends Window {
 				private final Action[] possibleActions = new Action[] { DELETE_ACTION };
 
 				@Override
-				public void handleAction(Action action, Object sender,
-						Object target) {
+				public void handleAction(Action action, Object sender, Object target) {
 					if (DELETE_ACTION.equals(action)) {
 						deleteItem((Long) target);
 					}
@@ -106,28 +103,23 @@ public class DictionaryValueWindow extends Window {
 		@Override
 		public void commit() throws SourceException, InvalidValueException {
 			super.commit();
-			Set<DictionaryValueResource> dictionaryValueResources = dictionaryValue
-					.getResources();
+			Set<DictionaryValueResource> dictionaryValueResources = dictionaryValue.getResources();
 			dictionaryValueResources.clear();
 			@SuppressWarnings("unchecked")
 			Collection<Long> ids = (Collection<Long>) getItemIds();
 			for (Long id : ids) {
 				Item tableItem = getItem(id);
 				DictionaryValueResource res = new DictionaryValueResource();
-				res.setResource((Resource) tableItem.getItemProperty(RESOURCE)
-						.getValue());
-				res.setMeasure((Double) tableItem.getItemProperty(MEASURE)
-						.getValue());
+				res.setResource((Resource) tableItem.getItemProperty(RESOURCE).getValue());
+				res.setMeasure((Double) tableItem.getItemProperty(MEASURE).getValue());
 				dictionaryValueResources.add(res);
 			}
 		}
 
 		public void setDictionaryValue(DictionaryValue dictionaryValue) {
 			this.dictionaryValue = dictionaryValue;
-			for (DictionaryValueResource dictionaryValueResource : dictionaryValue
-					.getResources()) {
-				addResource(dictionaryValueResource.getResource(),
-						dictionaryValueResource.getMeasure());
+			for (DictionaryValueResource dictionaryValueResource : dictionaryValue.getResources()) {
+				addResource(dictionaryValueResource.getResource(), dictionaryValueResource.getMeasure());
 			}
 		}
 
@@ -140,15 +132,13 @@ public class DictionaryValueWindow extends Window {
 		}
 	}
 
-	private final DictionaryValueResources table = new DictionaryValueResources(
-			"Ресурсы");
+	private final DictionaryValueResources table = new DictionaryValueResources("Ресурсы");
 	private final Form form = new Form(null, new FormFieldFactory() {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public Field createField(Item item, Object propertyId,
-				Component uiContext) {
+		public Field createField(Item item, Object propertyId, Component uiContext) {
 			Map<String, String> captions = new TreeMap<String, String>();
 			captions.put("code", "Код");
 			captions.put("measureUnit", "Единица измерения");
@@ -156,8 +146,7 @@ public class DictionaryValueWindow extends Window {
 			String pid = (String) propertyId;
 			if ("dictionary".equals(pid)) {
 				Select select = new Select("Справочник");
-				Collection<Dictionary> dictionaries = new DictionaryProvider()
-						.getAllDictionaries();
+				Collection<Dictionary> dictionaries = daoFactory.getDictionaryProvider().getAllDictionaries();
 				for (Dictionary dictionary : dictionaries) {
 					select.addItem(dictionary);
 				}
@@ -173,13 +162,13 @@ public class DictionaryValueWindow extends Window {
 		}
 	});
 
-	public DictionaryValueWindow(DictionaryValue dictionaryValue) {
+	public DictionaryValueWindow(DAOFactory daoFactory, DictionaryValue dictionaryValue) {
 		super();
+		this.daoFactory = daoFactory;
 		setSizeFull();
 
 		this.dictionaryValue = dictionaryValue;
-		BeanItem<DictionaryValue> item = new BeanItem<DictionaryValue>(
-				dictionaryValue);
+		BeanItem<DictionaryValue> item = new BeanItem<DictionaryValue>(dictionaryValue);
 		table.setDictionaryValue(dictionaryValue);
 		form.setItemDataSource(item);
 		form.setSizeFull();
@@ -188,8 +177,7 @@ public class DictionaryValueWindow extends Window {
 		Select resourceSelect = new Select("Доступные ресурсы");
 		resourceSelect.setNewItemsAllowed(false);
 		resourceSelect.setNullSelectionAllowed(false);
-		Collection<Resource> resources = new ResourceProvider()
-				.getAllResources();
+		Collection<Resource> resources = daoFactory.getResourceProvider().getAllResources();
 		for (Resource resource : resources) {
 			resourceSelect.addItem(resource);
 		}
@@ -214,10 +202,9 @@ public class DictionaryValueWindow extends Window {
 				form.commit();
 				table.commit();
 				@SuppressWarnings("unchecked")
-				BeanItem<DictionaryValue> item = (BeanItem<DictionaryValue>) form
-						.getItemDataSource();
+				BeanItem<DictionaryValue> item = (BeanItem<DictionaryValue>) form.getItemDataSource();
 				DictionaryValue value = item.getBean();
-				new DictionaryValueProvider().createNewDictionaryValue(value);
+				DictionaryValueWindow.this.daoFactory.getDictionaryValueProvider().createNewDictionaryValue(value);
 				close();
 			}
 		});
@@ -230,10 +217,9 @@ public class DictionaryValueWindow extends Window {
 				form.commit();
 				table.commit();
 				@SuppressWarnings("unchecked")
-				BeanItem<DictionaryValue> item = (BeanItem<DictionaryValue>) form
-						.getItemDataSource();
+				BeanItem<DictionaryValue> item = (BeanItem<DictionaryValue>) form.getItemDataSource();
 				DictionaryValue value = item.getBean();
-				new DictionaryValueProvider().updateDictionaryValue(value);
+				DictionaryValueWindow.this.daoFactory.getDictionaryValueProvider().updateDictionaryValue(value);
 				close();
 			}
 		});
@@ -255,4 +241,11 @@ public class DictionaryValueWindow extends Window {
 		return isCommit;
 	}
 
+	public DAOFactory getDaoFactory() {
+		return daoFactory;
+	}
+
+	public void setDaoFactory(DAOFactory daoFactory) {
+		this.daoFactory = daoFactory;
+	}
 }

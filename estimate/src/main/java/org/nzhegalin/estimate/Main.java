@@ -4,13 +4,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.nzhegalin.estimate.dao.DAOFactory;
 import org.nzhegalin.estimate.entity.Dictionary;
 import org.nzhegalin.estimate.entity.DictionaryValue;
 import org.nzhegalin.estimate.entity.Estimates;
 import org.nzhegalin.estimate.entity.Estimates.EstimatesItem;
-import org.nzhegalin.estimate.manager.DictionaryProvider;
-import org.nzhegalin.estimate.manager.DictionaryValueProvider;
-import org.nzhegalin.estimate.manager.EstimatesProvider;
 
 import com.vaadin.Application;
 import com.vaadin.data.Property;
@@ -32,15 +30,24 @@ public class Main extends Application {
 
 	private static final long serialVersionUID = 1L;
 	private Window mainWindow;
-	private final EstimatesTable estimatesTable = new EstimatesTable();;
+	private final EstimatesTable estimatesTable = new EstimatesTable();
 	private final Button addButton = new Button("Добавить в смету");
 	private Long estimatesId;
 	private final Tree dictionariesTree = new Tree();
-	private final ComboBox estimatesSelection = new ComboBox(
-			"Выберите сохраненную смету");
+	private final ComboBox estimatesSelection = new ComboBox("Выберите сохраненную смету");
+	protected DAOFactory daoFactory;
+
+	public DAOFactory getDaoFactory() {
+		return daoFactory;
+	}
+
+	public void setDaoFactory(DAOFactory daoFactory) {
+		this.daoFactory = daoFactory;
+	}
 
 	@Override
 	public void init() {
+		estimatesTable.setDaoFactory(daoFactory);
 		mainWindow = new Window("Smeta");
 		mainWindow.setSizeFull();
 		setMainWindow(mainWindow);
@@ -53,7 +60,7 @@ public class Main extends Application {
 			@Override
 			public void addNewItem(String newItemCaption) {
 				if (newItemCaption != null && !newItemCaption.isEmpty()) {
-					new EstimatesProvider().createNewEstimates(newItemCaption);
+					getDaoFactory().getEstimatesProvider().createNewEstimates(newItemCaption);
 				}
 				updateEstimatesSelection();
 				estimatesSelection.setValue(null);
@@ -64,12 +71,10 @@ public class Main extends Application {
 
 			@Override
 			public void valueChange(ValueChangeEvent event) {
-				Estimates selectedEstimatesValue = (Estimates) event
-						.getProperty().getValue();
+				Estimates selectedEstimatesValue = (Estimates) event.getProperty().getValue();
 				if (selectedEstimatesValue != null) {
 					estimatesId = selectedEstimatesValue.getId();
-					estimatesTable.fillByEstimates(new EstimatesProvider()
-							.getEstimates(estimatesId));
+					estimatesTable.fillByEstimates(getDaoFactory().getEstimatesProvider().getEstimates(estimatesId));
 				} else {
 					estimatesId = null;
 					estimatesTable.clear();
@@ -97,9 +102,8 @@ public class Main extends Application {
 			@Override
 			public void handleAction(Action action, Object sender, Object target) {
 				if (EDIT_ACTION.equals(action)) {
-					openDictionaryWindow(new DictionaryValueProvider()
-							.getFullDictionaryValue(((DictionaryValue) target)
-									.getId()));
+					openDictionaryWindow(getDaoFactory().getDictionaryValueProvider().getFullDictionaryValue(
+							((DictionaryValue) target).getId()));
 				}
 			}
 
@@ -130,8 +134,8 @@ public class Main extends Application {
 				if (value instanceof DictionaryValue) {
 					EstimatesItem estimatesItem = new EstimatesItem();
 					estimatesItem.setValue((DictionaryValue) value);
-					new EstimatesProvider().addEstimateItem(
-							estimatesTable.getEstimates(), estimatesItem);
+					getDaoFactory().getEstimatesProvider()
+							.addEstimateItem(estimatesTable.getEstimates(), estimatesItem);
 					reloadTable();
 				}
 			}
@@ -142,8 +146,7 @@ public class Main extends Application {
 		addComponent(addButton);
 		updateAddEstimatesItemButtonState();
 
-		Button createDictionaryValueButton = new Button(
-				"Создать новую запись в справочнике");
+		Button createDictionaryValueButton = new Button("Создать новую запись в справочнике");
 		createDictionaryValueButton.addListener(new ClickListener() {
 
 			private static final long serialVersionUID = 1L;
@@ -155,8 +158,7 @@ public class Main extends Application {
 		});
 		addComponent(createDictionaryValueButton);
 
-		Button createResourceButton = new Button(
-				"Создать новый ресурс в справочнике");
+		Button createResourceButton = new Button("Создать новый ресурс в справочнике");
 		createResourceButton.addListener(new ClickListener() {
 
 			private static final long serialVersionUID = 1L;
@@ -164,6 +166,7 @@ public class Main extends Application {
 			@Override
 			public void buttonClick(ClickEvent event) {
 				ResourceWindow dictionaryValueWindow = new ResourceWindow();
+				dictionaryValueWindow.setDaoFactory(daoFactory);
 				dictionaryValueWindow.setModal(true);
 				mainWindow.addWindow(dictionaryValueWindow);
 			}
@@ -177,8 +180,7 @@ public class Main extends Application {
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				ReportWindow actWindow = new ReportWindow(estimatesTable
-						.getEstimates());
+				ReportWindow actWindow = new ReportWindow(estimatesTable.getEstimates());
 				actWindow.setSizeFull();
 				mainWindow.addWindow(actWindow);
 			}
@@ -189,14 +191,14 @@ public class Main extends Application {
 
 	private void updateDictionariesTree() {
 		dictionariesTree.removeAllItems();
-		List<Dictionary> dictionaries = new ArrayList<Dictionary>(
-				new DictionaryProvider().getAllDictionaries());
+		List<Dictionary> dictionaries = new ArrayList<Dictionary>(getDaoFactory().getDictionaryProvider()
+				.getAllDictionaries());
 		for (Dictionary dictionary : dictionaries) {
 			dictionariesTree.addItem(dictionary);
 			dictionariesTree.setChildrenAllowed(dictionary, false);
 		}
 
-		Collection<DictionaryValue> dictionaryValues = new DictionaryValueProvider()
+		Collection<DictionaryValue> dictionaryValues = getDaoFactory().getDictionaryValueProvider()
 				.getAllDictionaryValues();
 
 		for (DictionaryValue dictionaryValue : dictionaryValues) {
@@ -216,9 +218,7 @@ public class Main extends Application {
 	}
 
 	private void updateEstimatesSelection() {
-		final EstimatesProvider estimatesProvider = new EstimatesProvider();
-		Collection<Estimates> allEstimates = estimatesProvider
-				.getAllEstimates();
+		Collection<Estimates> allEstimates = getDaoFactory().getEstimatesProvider().getAllEstimates();
 		estimatesSelection.removeAllItems();
 		for (Estimates estimates : allEstimates) {
 			estimatesSelection.addItem(estimates);
@@ -226,8 +226,7 @@ public class Main extends Application {
 	}
 
 	private void updateAddEstimatesItemButtonState() {
-		if (estimatesId == null
-				|| !(dictionariesTree.getValue() instanceof DictionaryValue)) {
+		if (estimatesId == null || !(dictionariesTree.getValue() instanceof DictionaryValue)) {
 			addButton.setEnabled(false);
 		} else {
 			addButton.setEnabled(true);
@@ -240,14 +239,13 @@ public class Main extends Application {
 
 	protected void reloadTable() {
 		if (estimatesId != null) {
-			this.estimatesTable.fillByEstimates(new EstimatesProvider()
-					.getEstimates(estimatesId));
+			this.estimatesTable.fillByEstimates(getDaoFactory().getEstimatesProvider().getEstimates(estimatesId));
 		}
 	}
 
 	private void openDictionaryWindow(DictionaryValue dictionaryValue) {
-		DictionaryValueWindow dictionaryValueWindow = new DictionaryValueWindow(
-				dictionaryValue);
+		DictionaryValueWindow dictionaryValueWindow = new DictionaryValueWindow(daoFactory, dictionaryValue);
+
 		dictionaryValueWindow.setModal(true);
 		dictionaryValueWindow.addListener(new CloseListener() {
 

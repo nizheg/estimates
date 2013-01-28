@@ -1,0 +1,40 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd">
+
+	<jee:jndi-lookup id="dataSource" jndi-name="java:/comp/env/jdbc/postgres"/>
+
+	<bean id="application" class="org.nzhegalin.estimate.Main">
+		<property name="daoFactory" ref="daoFactory"/>
+	</bean>
+
+	<bean id="dataProvider" class="org.nzhegalin.estimate.manager.DataProvider" scope="singleton">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<bean id="dictionaryProvider" class="org.nzhegalin.estimate.manager.DictionaryProvider" scope="singleton">
+		<property name="dataProvider" ref="dataProvider" />
+	</bean>
+	
+	<bean id="dictionaryValueProvider" class="org.nzhegalin.estimate.manager.DictionaryValueProvider" scope="singleton">
+		<property name="dataProvider" ref="dataProvider" />
+	</bean>
+	
+	<bean id="estimatesProvider" class="org.nzhegalin.estimate.manager.EstimatesProvider" scope="singleton">
+		<property name="dataProvider" ref="dataProvider" />
+	</bean>
+	
+	<bean id="resourceProvider" class="org.nzhegalin.estimate.manager.ResourceProvider" scope="singleton">
+		<property name="dataProvider" ref="dataProvider" />
+	</bean>
+	
+	<bean id="daoFactory" class="org.nzhegalin.estimate.dao.impl.JdbcDAOFactory" scope="singleton" init-method="init">
+		<property name="dictionaryProvider" ref="dictionaryProvider"/>
+		<property name="dictionaryValueProvider" ref="dictionaryValueProvider"/>
+		<property name="estimatesProvider" ref="estimatesProvider"/>
+		<property name="resourceProvider" ref="resourceProvider"/>
+	</bean>
+
+</beans>

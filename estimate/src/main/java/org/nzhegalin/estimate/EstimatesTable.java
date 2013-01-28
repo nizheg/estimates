@@ -1,11 +1,11 @@
 package org.nzhegalin.estimate;
 
+import org.nzhegalin.estimate.dao.DAOFactory;
 import org.nzhegalin.estimate.entity.DictionaryValue;
 import org.nzhegalin.estimate.entity.DictionaryValueResource;
 import org.nzhegalin.estimate.entity.Estimates;
 import org.nzhegalin.estimate.entity.Estimates.EstimatesItem;
 import org.nzhegalin.estimate.entity.Resource;
-import org.nzhegalin.estimate.manager.EstimatesProvider;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
@@ -33,6 +33,7 @@ public class EstimatesTable extends Table {
 
 	private static final String CHAPTER_ID_PREFIX = "chapter_";
 
+	private DAOFactory daoFactory;
 	private Estimates estimates;
 
 	private int chapterCounter = 1;
@@ -49,8 +50,7 @@ public class EstimatesTable extends Table {
 			private final Action EDIT_ACTION = new Action("Изменить");
 			private final Action DELETE_ACTION = new Action("Удалить");
 
-			private final Action[] possibleActions = new Action[] {
-					EDIT_ACTION, DELETE_ACTION };
+			private final Action[] possibleActions = new Action[] { EDIT_ACTION, DELETE_ACTION };
 
 			@Override
 			public void handleAction(Action action, Object sender, Object target) {
@@ -82,8 +82,7 @@ public class EstimatesTable extends Table {
 	}
 
 	@Override
-	protected String formatPropertyValue(Object rowId, Object colId,
-			Property property) {
+	protected String formatPropertyValue(Object rowId, Object colId, Property property) {
 		if (property.getValue() == null) {
 			return "";
 		}
@@ -118,9 +117,8 @@ public class EstimatesTable extends Table {
 
 				@Override
 				public void buttonClick(ClickEvent event) {
-					estimatesItem.setMeasure(Double.valueOf(editor.getValue()
-							.toString()));
-					new EstimatesProvider().updateEstimateItem(estimatesItem);
+					estimatesItem.setMeasure(Double.valueOf(editor.getValue().toString()));
+					daoFactory.getEstimatesProvider().updateEstimateItem(estimatesItem);
 					fillByEstimates(estimates);
 					closeWindow();
 				}
@@ -145,14 +143,13 @@ public class EstimatesTable extends Table {
 	}
 
 	protected void editItem(Long itemId) {
-		final Window subwindow = new EditItemWindow(
-				estimates.getItemById(itemId));
+		final Window subwindow = new EditItemWindow(estimates.getItemById(itemId));
 		getWindow().addWindow(subwindow);
 	}
 
 	protected void deleteItem(Long itemId) {
 		EstimatesItem item = estimates.getItemById(itemId);
-		new EstimatesProvider().deleteEstimateItem(item);
+		daoFactory.getEstimatesProvider().deleteEstimateItem(item);
 		estimates.deleteItem(item);
 		fillByEstimates(estimates);
 	}
@@ -163,8 +160,7 @@ public class EstimatesTable extends Table {
 		addContainerProperty(CODE_COL_ID, String.class, null);
 		setColumnHeader(CODE_COL_ID, "Шифр, номера нормативов и коды ресурсов");
 		addContainerProperty(NAME_COL_ID, String.class, null);
-		setColumnHeader(NAME_COL_ID,
-				"Наименование работ и затрат, характеристика оборудования и его масса");
+		setColumnHeader(NAME_COL_ID, "Наименование работ и затрат, характеристика оборудования и его масса");
 		addContainerProperty(MEASURE_UNIT_COL_ID, String.class, null);
 		setColumnHeader(MEASURE_UNIT_COL_ID, "Единица измерения");
 		addContainerProperty(AMOUNT_COL_ID, Double.class, null);
@@ -203,36 +199,27 @@ public class EstimatesTable extends Table {
 
 		DictionaryValue itemDictionaryValue = estimatesItem.getValue();
 		tableItem.getItemProperty(CODE_COL_ID).setValue(
-				itemDictionaryValue.getDictionary().getCode()
-						+ itemDictionaryValue.getCode());
-		tableItem.getItemProperty(NAME_COL_ID).setValue(
-				itemDictionaryValue.getName());
-		tableItem.getItemProperty(MEASURE_UNIT_COL_ID).setValue(
-				itemDictionaryValue.getMeasureUnit());
+				itemDictionaryValue.getDictionary().getCode() + itemDictionaryValue.getCode());
+		tableItem.getItemProperty(NAME_COL_ID).setValue(itemDictionaryValue.getName());
+		tableItem.getItemProperty(MEASURE_UNIT_COL_ID).setValue(itemDictionaryValue.getMeasureUnit());
 		tableItem.getItemProperty(COMMON_AMOUNT_COL_ID).setValue(commonAmount);
 
-		for (DictionaryValueResource dictionaryValueResource : itemDictionaryValue
-				.getResources()) {
-			addDictionaryValueResourceItem(estimatesItem.getId(),
-					dictionaryValueResource, commonAmount);
+		for (DictionaryValueResource dictionaryValueResource : itemDictionaryValue.getResources()) {
+			addDictionaryValueResourceItem(estimatesItem.getId(), dictionaryValueResource, commonAmount);
 		}
 
 	}
 
-	private void addDictionaryValueResourceItem(long estimatesItemId,
-			DictionaryValueResource dictionaryValueResource, Double commonAmount) {
+	private void addDictionaryValueResourceItem(long estimatesItemId, DictionaryValueResource dictionaryValueResource,
+			Double commonAmount) {
 		Resource resource = dictionaryValueResource.getResource();
-		Item tableItem = addItem(getResourceRowId(estimatesItemId,
-				resource.getId()));
+		Item tableItem = addItem(getResourceRowId(estimatesItemId, resource.getId()));
 		tableItem.getItemProperty(CODE_COL_ID).setValue(resource.getCode());
 		tableItem.getItemProperty(NAME_COL_ID).setValue(resource.getName());
-		tableItem.getItemProperty(MEASURE_UNIT_COL_ID).setValue(
-				resource.getMeasureUnit());
+		tableItem.getItemProperty(MEASURE_UNIT_COL_ID).setValue(resource.getMeasureUnit());
 		final Double amount = dictionaryValueResource.getMeasure();
-		tableItem.getItemProperty(AMOUNT_COL_ID).setValue(
-				dictionaryValueResource.getMeasure());
-		tableItem.getItemProperty(COMMON_AMOUNT_COL_ID).setValue(
-				amount * commonAmount);
+		tableItem.getItemProperty(AMOUNT_COL_ID).setValue(dictionaryValueResource.getMeasure());
+		tableItem.getItemProperty(COMMON_AMOUNT_COL_ID).setValue(amount * commonAmount);
 	}
 
 	private String getResourceRowId(long estimatesItemId, long resourceId) {
@@ -245,6 +232,14 @@ public class EstimatesTable extends Table {
 
 	public Estimates getEstimates() {
 		return estimates;
+	}
+
+	public DAOFactory getDaoFactory() {
+		return daoFactory;
+	}
+
+	public void setDaoFactory(DAOFactory daoFactory) {
+		this.daoFactory = daoFactory;
 	}
 
 }

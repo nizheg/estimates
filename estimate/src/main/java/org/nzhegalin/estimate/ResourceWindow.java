@@ -3,11 +3,11 @@ package org.nzhegalin.estimate;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.nzhegalin.estimate.dao.DAOFactory;
 import org.nzhegalin.estimate.entity.MachineResource;
 import org.nzhegalin.estimate.entity.ManhourResource;
 import org.nzhegalin.estimate.entity.MaterialResource;
 import org.nzhegalin.estimate.entity.Resource;
-import org.nzhegalin.estimate.manager.ResourceProvider;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -33,6 +33,7 @@ public class ResourceWindow extends Window {
 	protected static final String MATERIAL_RESOURCE = "Материалы";
 
 	private Resource resourceValue;
+	protected DAOFactory daoFactory;
 
 	private final Select materialTypeSelect = new Select("Тип ресурса");
 	private final Form form = new Form(null, new FormFieldFactory() {
@@ -40,8 +41,7 @@ public class ResourceWindow extends Window {
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public Field createField(Item item, Object propertyId,
-				Component uiContext) {
+		public Field createField(Item item, Object propertyId, Component uiContext) {
 			Map<String, String> captions = new TreeMap<String, String>();
 			captions.put("code", "Код");
 			captions.put("measureUnit", "Единица измерения");
@@ -91,10 +91,9 @@ public class ResourceWindow extends Window {
 			public void buttonClick(ClickEvent event) {
 				form.commit();
 				@SuppressWarnings("unchecked")
-				BeanItem<Resource> item = (BeanItem<Resource>) form
-						.getItemDataSource();
+				BeanItem<Resource> item = (BeanItem<Resource>) form.getItemDataSource();
 				Resource value = item.getBean();
-				new ResourceProvider().createNewResource(value);
+				daoFactory.getResourceProvider().createNewResource(value);
 				close();
 			}
 		});
@@ -153,6 +152,14 @@ public class ResourceWindow extends Window {
 
 	public Resource getResourceValue() {
 		return resourceValue;
+	}
+
+	public DAOFactory getDaoFactory() {
+		return daoFactory;
+	}
+
+	public void setDaoFactory(DAOFactory daoFactory) {
+		this.daoFactory = daoFactory;
 	}
 
 }

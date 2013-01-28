@@ -8,13 +8,17 @@ import org.nzhegalin.estimate.entity.builder.DictionaryBuilder;
 
 public class DictionaryProvider {
 
+	private DataProvider dataProvider;
+
+	public void setDataProvider(DataProvider dataProvider) {
+		this.dataProvider = dataProvider;
+	}
+
 	public Dictionary getDictionary(long id) {
 		try {
-			DataProvider dataProvider = DataProvider.instance();
-			return dataProvider
-					.queryObject(
-							"SELECT id as dictionary_id, code as dictionary_code FROM dictionary WHERE dictionary_id = "
-									+ id, new DictionaryBuilder());
+			return dataProvider.queryObject(
+					"SELECT id as dictionary_id, code as dictionary_code FROM dictionary WHERE dictionary_id = " + id,
+					new DictionaryBuilder());
 		} catch (SQLException e) {
 			throw new IllegalStateException(e);
 		}
@@ -22,22 +26,16 @@ public class DictionaryProvider {
 
 	public Collection<Dictionary> getAllDictionaries() {
 		try {
-			DataProvider dataProvider = DataProvider.instance();
-			return dataProvider
-					.queryCollection(
-							"SELECT id as dictionary_id, code as dictionary_code FROM dictionary",
-							new DictionaryBuilder());
+			return dataProvider.queryCollection("SELECT id as dictionary_id, code as dictionary_code FROM dictionary",
+					new DictionaryBuilder());
 		} catch (SQLException e) {
 			throw new IllegalStateException(e);
 		}
 	}
 
 	public boolean updateDictionary(Dictionary item) {
-		DataProvider dataProvider;
 		try {
-			dataProvider = DataProvider.instance();
-			return dataProvider.update(String.format(
-					"UPDATE dictionary SET code=%s WHERE id = " + item.getId(),
+			return dataProvider.update(String.format("UPDATE dictionary SET code=%s WHERE id = " + item.getId(),
 					item.getCode()));
 		} catch (SQLException e) {
 			throw new IllegalStateException(e);

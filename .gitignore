@@ -5,6 +5,9 @@
 .metadata/
 *~
 target/
+*.diff
+/Servers
+remote_config.properties
 
 # Package Files #
 *.jar

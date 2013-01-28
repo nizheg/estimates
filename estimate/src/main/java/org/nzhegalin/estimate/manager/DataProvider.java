@@ -7,36 +7,18 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import org.nzhegalin.estimate.entity.builder.EntityBuilder;
 
 public class DataProvider {
 
-	private static DataProvider instance;
-	private DataSource ds;
+	private DataSource dataSource;
 	private Connection connection;
 	private boolean isActiveTransaction;
 
-	private DataProvider() throws SQLException {
-		try {
-			InitialContext cxt = new InitialContext();
-			ds = (DataSource) cxt.lookup("java:/comp/env/jdbc/postgres");
-		} catch (NamingException e) {
-			throw new SQLException(e);
-		}
-		if (ds == null) {
-			throw new SQLException("Data source not found!");
-		}
-	}
-
-	public static DataProvider instance() throws SQLException {
-		if (instance == null) {
-			instance = new DataProvider();
-		}
-		return instance;
+	public void setDataSource(DataSource dataSource) {
+		this.dataSource = dataSource;
 	}
 
 	public void beginTransaction() throws SQLException {
@@ -63,8 +45,7 @@ public class DataProvider {
 		}
 	}
 
-	public <T> T queryObject(String query, EntityBuilder<T> builder)
-			throws SQLException {
+	public <T> T queryObject(String query, EntityBuilder<T> builder) throws SQLException {
 		Connection conn = null;
 		Statement statement = null;
 		ResultSet result = null;
@@ -81,8 +62,7 @@ public class DataProvider {
 		}
 	}
 
-	public <T> Collection<T> queryCollection(String query,
-			EntityBuilder<T> builder) throws SQLException {
+	public <T> Collection<T> queryCollection(String query, EntityBuilder<T> builder) throws SQLException {
 		Connection conn = null;
 		Statement statement = null;
 		ResultSet result = null;
@@ -107,8 +87,7 @@ public class DataProvider {
 		try {
 			conn = getConnection();
 			statement = conn.createStatement();
-			result = statement.executeUpdate(query,
-					Statement.RETURN_GENERATED_KEYS);
+			result = statement.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
 			return result > 0;
 		} finally {
 			closeConnection();
@@ -124,7 +103,7 @@ public class DataProvider {
 
 	private Connection getConnection() throws SQLException {
 		if (this.connection == null) {
-			this.connection = ds.getConnection();
+			this.connection = this.dataSource.getConnection();
 		}
 		return this.connection;
 	}
