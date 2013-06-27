@@ -73,7 +73,6 @@ public class DictionaryValueProvider {
 
 	public void createNewDictionaryValue(DictionaryValue dictionaryValue) {
 		try {
-			dataProvider.beginTransaction();
 			long dictionaryId = dictionaryValue.getDictionary().getId();
 			String code = createStringParameter(dictionaryValue.getCode());
 			String name = createStringParameter(dictionaryValue.getName());
@@ -94,17 +93,8 @@ public class DictionaryValueProvider {
 								+ resource.getResource().getId()
 								+ ","
 								+ resource.getMeasure() + ")");
-
 			}
-			dataProvider.commitTransaction();
 		} catch (Exception e) {
-			if (dataProvider != null) {
-				try {
-					dataProvider.rollbackTransaction();
-				} catch (SQLException ex) {
-					throw new IllegalStateException(ex.getMessage(), e);
-				}
-			}
 			throw new IllegalStateException(e);
 		}
 	}
@@ -118,7 +108,6 @@ public class DictionaryValueProvider {
 			throw new IllegalArgumentException("Only existent dictionary value can be updated");
 		}
 		try {
-			dataProvider.beginTransaction();
 			long dictionaryId = dictionaryValue.getDictionary().getId();
 			String code = createStringParameter(dictionaryValue.getCode());
 			String name = createStringParameter(dictionaryValue.getName());
@@ -163,15 +152,7 @@ public class DictionaryValueProvider {
 						"DELETE FROM dictionary_value_resource WHERE dictionary_value_id=%s AND resource_id IN (%s)",
 						dictionaryValue.getId(), resourceIdsBuilder.toString()));
 			}
-			dataProvider.commitTransaction();
 		} catch (Exception e) {
-			if (dataProvider != null) {
-				try {
-					dataProvider.rollbackTransaction();
-				} catch (SQLException ex) {
-					throw new IllegalStateException(ex.getMessage(), e);
-				}
-			}
 			throw new IllegalStateException(e);
 		}
 

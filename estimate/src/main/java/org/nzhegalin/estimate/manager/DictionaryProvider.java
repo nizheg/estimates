@@ -1,13 +1,15 @@
 package org.nzhegalin.estimate.manager;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Collection;
 
 import org.nzhegalin.estimate.entity.Dictionary;
 import org.nzhegalin.estimate.entity.builder.DictionaryBuilder;
 
-public class DictionaryProvider {
+public class DictionaryProvider implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private DataProvider dataProvider;
 
 	public void setDataProvider(DataProvider dataProvider) {

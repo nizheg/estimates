@@ -1,110 +1,44 @@
 package org.nzhegalin.estimate.manager;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.sql.DataSource;
 
 import org.nzhegalin.estimate.entity.builder.EntityBuilder;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 
 public class DataProvider {
 
-	private DataSource dataSource;
-	private Connection connection;
-	private boolean isActiveTransaction;
+	private JdbcTemplate template;
 
 	public void setDataSource(DataSource dataSource) {
-		this.dataSource = dataSource;
+		this.template = new JdbcTemplate(dataSource);
 	}
 
-	public void beginTransaction() throws SQLException {
-		getConnection().setAutoCommit(false);
-		isActiveTransaction = true;
-	}
-
-	public void commitTransaction() throws SQLException {
-		try {
-			getConnection().commit();
-		} finally {
-			isActiveTransaction = false;
-			closeConnection();
-		}
-
-	}
-
-	public void rollbackTransaction() throws SQLException {
-		try {
-			getConnection().rollback();
-		} finally {
-			isActiveTransaction = false;
-			closeConnection();
-		}
-	}
-
-	public <T> T queryObject(String query, EntityBuilder<T> builder) throws SQLException {
-		Connection conn = null;
-		Statement statement = null;
-		ResultSet result = null;
-		try {
-			conn = getConnection();
-			statement = conn.createStatement();
-			result = statement.executeQuery(query);
-			if (result.next()) {
-				return builder.createInstance(result);
+	public <T> T queryObject(String query, final EntityBuilder<T> builder) throws SQLException {
+		return template.queryForObject(query, new RowMapper<T>() {
+			@Override
+			public T mapRow(ResultSet rs, int rowNum) throws SQLException {
+				return builder.createInstance(rs);
 			}
-			return null;
-		} finally {
-			closeConnection();
-		}
+		});
+
 	}
 
-	public <T> Collection<T> queryCollection(String query, EntityBuilder<T> builder) throws SQLException {
-		Connection conn = null;
-		Statement statement = null;
-		ResultSet result = null;
-		try {
-			conn = getConnection();
-			statement = conn.createStatement();
-			result = statement.executeQuery(query);
-			Collection<T> values = new ArrayList<T>();
-			while (result.next()) {
-				values.add(builder.createInstance(result));
+	public <T> Collection<T> queryCollection(String query, final EntityBuilder<T> builder) throws SQLException {
+		return template.query(query, new RowMapper<T>() {
+			@Override
+			public T mapRow(ResultSet rs, int rowNum) throws SQLException {
+				return builder.createInstance(rs);
 			}
-			return values;
-		} finally {
-			closeConnection();
-		}
+		});
 	}
 
 	public boolean update(String query) throws SQLException {
-		Connection conn = null;
-		Statement statement = null;
-		int result;
-		try {
-			conn = getConnection();
-			statement = conn.createStatement();
-			result = statement.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
-			return result > 0;
-		} finally {
-			closeConnection();
-		}
+		return template.update(query) > 0;
 	}
 
-	private void closeConnection() throws SQLException {
-		if (this.connection != null && !isActiveTransaction) {
-			this.connection.close();
-			this.connection = null;
-		}
-	}
-
-	private Connection getConnection() throws SQLException {
-		if (this.connection == null) {
-			this.connection = this.dataSource.getConnection();
-		}
-		return this.connection;
-	}
 }
