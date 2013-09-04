@@ -146,7 +146,7 @@ public class DictionaryValueWindow extends Window {
 			String pid = (String) propertyId;
 			if ("dictionary".equals(pid)) {
 				Select select = new Select("Справочник");
-				Collection<Dictionary> dictionaries = daoFactory.getDictionaryProvider().getAllDictionaries();
+				Collection<Dictionary> dictionaries = daoFactory.getDictionaryDAO().getAllDictionaries();
 				for (Dictionary dictionary : dictionaries) {
 					select.addItem(dictionary);
 				}
@@ -177,7 +177,7 @@ public class DictionaryValueWindow extends Window {
 		Select resourceSelect = new Select("Доступные ресурсы");
 		resourceSelect.setNewItemsAllowed(false);
 		resourceSelect.setNullSelectionAllowed(false);
-		Collection<Resource> resources = daoFactory.getResourceProvider().getAllResources();
+		Collection<Resource> resources = daoFactory.getResourceDAO().getAllResources();
 		for (Resource resource : resources) {
 			resourceSelect.addItem(resource);
 		}
@@ -204,7 +204,7 @@ public class DictionaryValueWindow extends Window {
 				@SuppressWarnings("unchecked")
 				BeanItem<DictionaryValue> item = (BeanItem<DictionaryValue>) form.getItemDataSource();
 				DictionaryValue value = item.getBean();
-				DictionaryValueWindow.this.daoFactory.getDictionaryValueProvider().createNewDictionaryValue(value);
+				DictionaryValueWindow.this.daoFactory.getDictionaryValueDAO().createNewDictionaryValue(value);
 				close();
 			}
 		});
@@ -219,7 +219,7 @@ public class DictionaryValueWindow extends Window {
 				@SuppressWarnings("unchecked")
 				BeanItem<DictionaryValue> item = (BeanItem<DictionaryValue>) form.getItemDataSource();
 				DictionaryValue value = item.getBean();
-				DictionaryValueWindow.this.daoFactory.getDictionaryValueProvider().updateDictionaryValue(value);
+				DictionaryValueWindow.this.daoFactory.getDictionaryValueDAO().updateDictionaryValue(value);
 				close();
 			}
 		});

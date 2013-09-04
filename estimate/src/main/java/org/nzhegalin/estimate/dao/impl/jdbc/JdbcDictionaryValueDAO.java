@@ -1,16 +1,18 @@
-package org.nzhegalin.estimate.manager;
+package org.nzhegalin.estimate.dao.impl.jdbc;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 
+import org.nzhegalin.estimate.dao.DataProvider;
+import org.nzhegalin.estimate.dao.DictionaryValueDAO;
 import org.nzhegalin.estimate.entity.DictionaryValue;
 import org.nzhegalin.estimate.entity.DictionaryValueResource;
 import org.nzhegalin.estimate.entity.builder.DictionaryValueBuilder;
 import org.nzhegalin.estimate.entity.builder.DictionaryValueResourceBuilder;
 import org.nzhegalin.estimate.entity.builder.EntityBuilder;
 
-public class DictionaryValueProvider {
+public class JdbcDictionaryValueDAO implements DictionaryValueDAO {
 
 	private DataProvider dataProvider;
 
@@ -18,6 +20,7 @@ public class DictionaryValueProvider {
 		this.dataProvider = dataProvider;
 	}
 
+	@Override
 	public DictionaryValue getDictionaryValue(long id) {
 		try {
 
@@ -35,6 +38,7 @@ public class DictionaryValueProvider {
 		}
 	}
 
+	@Override
 	public DictionaryValue getFullDictionaryValue(long id) {
 		DictionaryValue dictionaryValue = getDictionaryValue(id);
 		dictionaryValue.getResources().addAll(getDictionaryValueResources(dictionaryValue));
@@ -42,6 +46,7 @@ public class DictionaryValueProvider {
 
 	}
 
+	@Override
 	public Collection<DictionaryValueResource> getDictionaryValueResources(DictionaryValue value) {
 		try {
 			Collection<DictionaryValueResource> dictionaryValueResources = dataProvider.queryCollection("SELECT "
@@ -58,6 +63,7 @@ public class DictionaryValueProvider {
 
 	}
 
+	@Override
 	public Collection<DictionaryValue> getAllDictionaryValues() {
 		try {
 			return dataProvider.queryCollection("SELECT " + "  dictionary_value.code as dictionary_value_code, "
@@ -71,6 +77,7 @@ public class DictionaryValueProvider {
 		}
 	}
 
+	@Override
 	public void createNewDictionaryValue(DictionaryValue dictionaryValue) {
 		try {
 			long dictionaryId = dictionaryValue.getDictionary().getId();
@@ -103,6 +110,7 @@ public class DictionaryValueProvider {
 		return String.format("'%s'", parameter == null ? "" : parameter.replace("'", "''"));
 	}
 
+	@Override
 	public void updateDictionaryValue(DictionaryValue dictionaryValue) {
 		if (dictionaryValue.getId() == 0) {
 			throw new IllegalArgumentException("Only existent dictionary value can be updated");

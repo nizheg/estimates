@@ -1,8 +1,11 @@
-package org.nzhegalin.estimate.manager;
+package org.nzhegalin.estimate.dao.impl.jdbc;
 
 import java.sql.SQLException;
 import java.util.Collection;
 
+import org.nzhegalin.estimate.dao.DataProvider;
+import org.nzhegalin.estimate.dao.DictionaryValueDAO;
+import org.nzhegalin.estimate.dao.EstimatesDAO;
 import org.nzhegalin.estimate.entity.DictionaryValue;
 import org.nzhegalin.estimate.entity.DictionaryValueResource;
 import org.nzhegalin.estimate.entity.Estimates;
@@ -10,19 +13,20 @@ import org.nzhegalin.estimate.entity.Estimates.EstimatesItem;
 import org.nzhegalin.estimate.entity.builder.EstimatesBuilder;
 import org.nzhegalin.estimate.entity.builder.EstimatesItemBuilder;
 
-public class EstimatesProvider {
+public class JdbcEstimatesDAO implements EstimatesDAO {
 
 	private DataProvider dataProvider;
-	private DictionaryValueProvider dictionaryValueProvider;
+	private DictionaryValueDAO dictionaryValueProvider;
 
 	public void setDataProvider(DataProvider dataProvider) {
 		this.dataProvider = dataProvider;
 	}
 
-	public void setDictionaryValueProvider(DictionaryValueProvider dictionaryValueProvider) {
+	public void setDictionaryValueDAO(DictionaryValueDAO dictionaryValueProvider) {
 		this.dictionaryValueProvider = dictionaryValueProvider;
 	}
 
+	@Override
 	public Estimates getEstimates(long id) {
 		try {
 
@@ -54,6 +58,7 @@ public class EstimatesProvider {
 		}
 	}
 
+	@Override
 	public Collection<Estimates> getAllEstimates() {
 		try {
 			return dataProvider.queryCollection("SELECT id as estimates_id, name as estimates_name FROM estimates",
@@ -63,6 +68,7 @@ public class EstimatesProvider {
 		}
 	}
 
+	@Override
 	public boolean addEstimateItem(Estimates estimates, EstimatesItem item) {
 		try {
 			return dataProvider
@@ -81,6 +87,7 @@ public class EstimatesProvider {
 
 	}
 
+	@Override
 	public boolean updateEstimateItem(EstimatesItem item) {
 		try {
 			return dataProvider.update(String.format("UPDATE estimates_value SET measure=%s, number=%s"
@@ -91,6 +98,7 @@ public class EstimatesProvider {
 
 	}
 
+	@Override
 	public boolean deleteEstimateItem(EstimatesItem item) {
 		try {
 			return dataProvider.update("DELETE FROM estimates_value WHERE id = " + item.getId());
@@ -100,6 +108,7 @@ public class EstimatesProvider {
 
 	}
 
+	@Override
 	public boolean createNewEstimates(String name) {
 		try {
 			return dataProvider.update("INSERT INTO estimates(name) VALUES('" + name.replace("'", "''") + "')");

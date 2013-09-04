@@ -60,7 +60,7 @@ public class Main extends Application {
 			@Override
 			public void addNewItem(String newItemCaption) {
 				if (newItemCaption != null && !newItemCaption.isEmpty()) {
-					getDaoFactory().getEstimatesProvider().createNewEstimates(newItemCaption);
+					getDaoFactory().getEstimatesDAO().createNewEstimates(newItemCaption);
 				}
 				updateEstimatesSelection();
 				estimatesSelection.setValue(null);
@@ -74,7 +74,7 @@ public class Main extends Application {
 				Estimates selectedEstimatesValue = (Estimates) event.getProperty().getValue();
 				if (selectedEstimatesValue != null) {
 					estimatesId = selectedEstimatesValue.getId();
-					estimatesTable.fillByEstimates(getDaoFactory().getEstimatesProvider().getEstimates(estimatesId));
+					estimatesTable.fillByEstimates(getDaoFactory().getEstimatesDAO().getEstimates(estimatesId));
 				} else {
 					estimatesId = null;
 					estimatesTable.clear();
@@ -102,7 +102,7 @@ public class Main extends Application {
 			@Override
 			public void handleAction(Action action, Object sender, Object target) {
 				if (EDIT_ACTION.equals(action)) {
-					openDictionaryWindow(getDaoFactory().getDictionaryValueProvider().getFullDictionaryValue(
+					openDictionaryWindow(getDaoFactory().getDictionaryValueDAO().getFullDictionaryValue(
 							((DictionaryValue) target).getId()));
 				}
 			}
@@ -134,7 +134,7 @@ public class Main extends Application {
 				if (value instanceof DictionaryValue) {
 					EstimatesItem estimatesItem = new EstimatesItem();
 					estimatesItem.setValue((DictionaryValue) value);
-					getDaoFactory().getEstimatesProvider()
+					getDaoFactory().getEstimatesDAO()
 							.addEstimateItem(estimatesTable.getEstimates(), estimatesItem);
 					reloadTable();
 				}
@@ -191,14 +191,14 @@ public class Main extends Application {
 
 	private void updateDictionariesTree() {
 		dictionariesTree.removeAllItems();
-		List<Dictionary> dictionaries = new ArrayList<Dictionary>(getDaoFactory().getDictionaryProvider()
+		List<Dictionary> dictionaries = new ArrayList<Dictionary>(getDaoFactory().getDictionaryDAO()
 				.getAllDictionaries());
 		for (Dictionary dictionary : dictionaries) {
 			dictionariesTree.addItem(dictionary);
 			dictionariesTree.setChildrenAllowed(dictionary, false);
 		}
 
-		Collection<DictionaryValue> dictionaryValues = getDaoFactory().getDictionaryValueProvider()
+		Collection<DictionaryValue> dictionaryValues = getDaoFactory().getDictionaryValueDAO()
 				.getAllDictionaryValues();
 
 		for (DictionaryValue dictionaryValue : dictionaryValues) {
@@ -218,7 +218,7 @@ public class Main extends Application {
 	}
 
 	private void updateEstimatesSelection() {
-		Collection<Estimates> allEstimates = getDaoFactory().getEstimatesProvider().getAllEstimates();
+		Collection<Estimates> allEstimates = getDaoFactory().getEstimatesDAO().getAllEstimates();
 		estimatesSelection.removeAllItems();
 		for (Estimates estimates : allEstimates) {
 			estimatesSelection.addItem(estimates);
@@ -239,7 +239,7 @@ public class Main extends Application {
 
 	protected void reloadTable() {
 		if (estimatesId != null) {
-			this.estimatesTable.fillByEstimates(getDaoFactory().getEstimatesProvider().getEstimates(estimatesId));
+			this.estimatesTable.fillByEstimates(getDaoFactory().getEstimatesDAO().getEstimates(estimatesId));
 		}
 	}
 

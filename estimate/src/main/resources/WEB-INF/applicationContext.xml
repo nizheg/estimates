@@ -23,7 +23,7 @@
 	</tx:advice>
 	
 	<aop:config proxy-target-class="true">
-		<aop:pointcut id="defaultServiceOperation" expression="execution(* org.nzhegalin.estimate.manager.*Provider.*(..))"/>		
+		<aop:pointcut id="defaultServiceOperation" expression="execution(* org.nzhegalin.estimate.dao.*DAO.*(..))"/>		
 		<aop:advisor pointcut-ref="defaultServiceOperation" advice-ref="defaultTxAdvice"/>		
 	</aop:config>
 
@@ -31,31 +31,31 @@
 		<property name="daoFactory" ref="daoFactory"/>
 	</bean>
 
-	<bean id="dataProvider" class="org.nzhegalin.estimate.manager.DataProvider" scope="singleton">
+	<bean id="dataProvider" class="org.nzhegalin.estimate.dao.impl.jdbc.JdbcDataProvider" scope="singleton">
 		<property name="dataSource" ref="dataSource" />
 	</bean>
 	
-	<bean id="dictionaryProvider" class="org.nzhegalin.estimate.manager.DictionaryProvider" scope="singleton">
+	<bean id="dictionaryDAO" class="org.nzhegalin.estimate.dao.impl.jdbc.JdbcDictionaryDAO" scope="singleton">
 		<property name="dataProvider" ref="dataProvider" />
 	</bean>
 	
-	<bean id="dictionaryValueProvider" class="org.nzhegalin.estimate.manager.DictionaryValueProvider" scope="singleton">
+	<bean id="dictionaryValueDAO" class="org.nzhegalin.estimate.dao.impl.jdbc.JdbcDictionaryValueDAO" scope="singleton">
 		<property name="dataProvider" ref="dataProvider" />
 	</bean>
 	
-	<bean id="estimatesProvider" class="org.nzhegalin.estimate.manager.EstimatesProvider" scope="singleton">
+	<bean id="estimatesDAO" class="org.nzhegalin.estimate.dao.impl.jdbc.JdbcEstimatesDAO" scope="singleton">
 		<property name="dataProvider" ref="dataProvider" />
 	</bean>
 	
-	<bean id="resourceProvider" class="org.nzhegalin.estimate.manager.ResourceProvider" scope="singleton">
+	<bean id="resourceDAO" class="org.nzhegalin.estimate.dao.impl.jdbc.JdbcResourceDAO" scope="singleton">
 		<property name="dataProvider" ref="dataProvider" />
 	</bean>
 	
-	<bean id="daoFactory" class="org.nzhegalin.estimate.dao.impl.JdbcDAOFactory" scope="singleton" init-method="init">
-		<property name="dictionaryProvider" ref="dictionaryProvider"/>
-		<property name="dictionaryValueProvider" ref="dictionaryValueProvider"/>
-		<property name="estimatesProvider" ref="estimatesProvider"/>
-		<property name="resourceProvider" ref="resourceProvider"/>
+	<bean id="daoFactory" class="org.nzhegalin.estimate.dao.impl.jdbc.JdbcDAOFactory" scope="singleton" init-method="init">
+		<property name="dictionaryDAO" ref="dictionaryDAO"/>
+		<property name="dictionaryValueDAO" ref="dictionaryValueDAO"/>
+		<property name="estimatesDAO" ref="estimatesDAO"/>
+		<property name="resourceDAO" ref="resourceDAO"/>
 	</bean>
 
 </beans>

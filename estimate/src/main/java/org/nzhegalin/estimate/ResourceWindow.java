@@ -93,7 +93,7 @@ public class ResourceWindow extends Window {
 				@SuppressWarnings("unchecked")
 				BeanItem<Resource> item = (BeanItem<Resource>) form.getItemDataSource();
 				Resource value = item.getBean();
-				daoFactory.getResourceProvider().createNewResource(value);
+				daoFactory.getResourceDAO().createNewResource(value);
 				close();
 			}
 		});

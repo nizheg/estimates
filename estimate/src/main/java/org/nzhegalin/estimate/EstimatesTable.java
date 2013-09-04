@@ -118,7 +118,7 @@ public class EstimatesTable extends Table {
 				@Override
 				public void buttonClick(ClickEvent event) {
 					estimatesItem.setMeasure(Double.valueOf(editor.getValue().toString()));
-					daoFactory.getEstimatesProvider().updateEstimateItem(estimatesItem);
+					daoFactory.getEstimatesDAO().updateEstimateItem(estimatesItem);
 					fillByEstimates(estimates);
 					closeWindow();
 				}
@@ -149,7 +149,7 @@ public class EstimatesTable extends Table {
 
 	protected void deleteItem(Long itemId) {
 		EstimatesItem item = estimates.getItemById(itemId);
-		daoFactory.getEstimatesProvider().deleteEstimateItem(item);
+		daoFactory.getEstimatesDAO().deleteEstimateItem(item);
 		estimates.deleteItem(item);
 		fillByEstimates(estimates);
 	}

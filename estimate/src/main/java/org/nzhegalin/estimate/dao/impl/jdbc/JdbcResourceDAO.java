@@ -1,12 +1,14 @@
-package org.nzhegalin.estimate.manager;
+package org.nzhegalin.estimate.dao.impl.jdbc;
 
 import java.sql.SQLException;
 import java.util.Collection;
 
+import org.nzhegalin.estimate.dao.DataProvider;
+import org.nzhegalin.estimate.dao.ResourceDAO;
 import org.nzhegalin.estimate.entity.Resource;
 import org.nzhegalin.estimate.entity.builder.ResourceBuilder;
 
-public class ResourceProvider {
+public class JdbcResourceDAO implements ResourceDAO {
 
 	private DataProvider dataProvider;
 
@@ -14,6 +16,7 @@ public class ResourceProvider {
 		this.dataProvider = dataProvider;
 	}
 
+	@Override
 	public Collection<Resource> getAllResources() {
 		try {
 			return dataProvider
@@ -25,6 +28,7 @@ public class ResourceProvider {
 		}
 	}
 
+	@Override
 	public void createNewResource(Resource value) {
 
 		try {
